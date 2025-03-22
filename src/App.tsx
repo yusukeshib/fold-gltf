@@ -1,24 +1,29 @@
-import { useState } from 'react'
+import { useState } from "react";
+import { downloadBlob, browse } from "./utils";
+import { convertFoldToGltf } from "./converter";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [error, setError] = useState("");
+  const handleClick = async () => {
+    try {
+      setError("");
+      const file = await browse({});
+      const blob = await convertFoldToGltf(file);
+      downloadBlob("export.gltf", blob);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `${err}`);
+    }
+  };
 
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        Open your FOLD file, it generates your GLTF file with animation.
       </p>
+      <button onClick={handleClick}>Browse</button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
