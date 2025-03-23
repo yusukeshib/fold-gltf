@@ -28,18 +28,6 @@ export const createConverter = async (file: File) => {
   // Set camera position
   camera.position.z = 3;
 
-  const exportGLTF = async () => {
-    const exporter = new GLTFExporter();
-
-    const result = await new Promise<ArrayBuffer>((resolve, reject) => {
-      exporter.parse(scene, (gltf) => resolve(gltf as ArrayBuffer), reject, {
-        binary: true,
-      });
-    });
-
-    return new Blob([result]);
-  };
-
   const animate = () => {
     renderer.render(scene, camera);
   };
@@ -47,10 +35,22 @@ export const createConverter = async (file: File) => {
 
   return {
     renderer,
-    exportGLTF,
+    exportGLTF: createExportGLTF(scene),
     width,
     height,
   };
+};
+
+const createExportGLTF = (scene: THREE.Scene) => async () => {
+  const exporter = new GLTFExporter();
+
+  const result = await new Promise<ArrayBuffer>((resolve, reject) => {
+    exporter.parse(scene, (gltf) => resolve(gltf as ArrayBuffer), reject, {
+      binary: true,
+    });
+  });
+
+  return new Blob([result]);
 };
 
 // Function to convert FOLD data to Three.js scene
